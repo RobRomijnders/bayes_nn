@@ -61,6 +61,8 @@ def test(step, model):
 
 
 def training_lang(save_path):
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
     if os.path.exists(join(save_path, 'model0.pyt')):
         # Only train if there is no saved model in the save_path
         return

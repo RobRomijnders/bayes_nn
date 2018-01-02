@@ -67,6 +67,8 @@ def training(save_path, dataloader):
 
 
 def training_multi(save_path):
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
     if os.path.exists(join(save_path, 'model0.pyt')):
         return
 
