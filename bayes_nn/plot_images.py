@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from bayes_nn import conf
+from bayes_nn.util.util import maybe_make_dir
 
 # pickled_images = ['log/noise.mc_multi.im.npy', 'log/rotation.mc_multi.im.npy']
 # logged_risks = ['log/noise.mc_multi.risks.npy', 'log/rotation.mc_multi.risks.npy']
@@ -10,10 +11,6 @@ from bayes_nn import conf
 
 
 # for var, fname_im, fname_risks, fname_mean_risks in zip(variable, pickled_images, logged_risks, mean_risks_files):
-
-def maybe_make_dir(dirname):
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
 
 mc_type = 'mc_multi'
 for mutilation, var_name, _, _ in conf.experiments:

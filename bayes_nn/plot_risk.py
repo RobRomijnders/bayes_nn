@@ -3,6 +3,10 @@ import os
 from collections import OrderedDict
 import glob
 from bayes_nn import conf
+from bayes_nn.util.util import maybe_make_dir
+
+
+maybe_make_dir('im')
 
 filenames = glob.glob('log/*.*.csv')
 

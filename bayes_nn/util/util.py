@@ -3,6 +3,7 @@ import matplotlib.gridspec as gridspec
 from PIL import Image
 import numpy as np
 import torch
+import os
 
 
 def to_tensor(im, lbl, CUDA=True):
@@ -124,3 +125,8 @@ def plot_preds(preds, batch):
 
         # fig.show()
         plt.savefig('im/plot%i.png' % n)
+
+
+def maybe_make_dir(dirname):
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)

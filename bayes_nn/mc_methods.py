@@ -2,9 +2,10 @@ import time
 import torch
 from torch.autograd import Variable
 from os.path import join
+import os
 
 
-from bayes_nn.util.util import calc_risk, to_tensor
+from bayes_nn.util.util import calc_risk, to_tensor, maybe_make_dir
 from bayes_nn.training import test
 from bayes_nn.model.model_definition import Net
 from bayes_nn import conf
@@ -33,6 +34,8 @@ def MC_sampling(save_path, test_batch, mc_type):
     :return:
     """
     assert mc_type in ['dropout', 'multi', 'lang']
+
+    maybe_make_dir('log')
 
     # Load the model
     model = Net()
