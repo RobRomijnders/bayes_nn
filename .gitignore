@@ -5,4 +5,7 @@ __pycache__
 *.csv
 readme_raw.md
 .idea
+bayes_nn/backup/
+bayes_nn/data/
+bayes_nn/log/
 
