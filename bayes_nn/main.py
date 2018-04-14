@@ -24,5 +24,6 @@ def main():
     print('\nDo MC lang\n')
     MC_sampling('saved_models_lang', test_batch, 'lang')
 
+
 if __name__ == "__main__":
     main()

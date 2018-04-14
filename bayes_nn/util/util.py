@@ -65,7 +65,7 @@ def calc_risk(preds, labels, weights=None):
     ave_preds = np.mean(preds, 0)
     pred_class = np.argmax(ave_preds, 1)
 
-    entropy = -1 * np.sum(ave_preds * np.log(ave_preds), 1)
+    entropy = np.mean(-1 * np.sum(preds * np.log(preds), axis=-1), axis=0)
     variance = np.std(preds[:, range(num_batch), pred_class], 0)
     ave_softmax = np.mean(preds[:, range(num_batch), pred_class], 0)
     correct = np.equal(pred_class, labels)
