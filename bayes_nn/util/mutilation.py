@@ -16,13 +16,24 @@ def rotation(images, angle):
     :param angle:
     :return: numpy array
     """
+    images_out = np.zeros_like(images)
+    # Check if there is a dimension of unit size
+    try:
+        unit_dim = images.shape.index(1)
+    except ValueError:
+        unit_dim = None
+
+    if unit_dim:
+        images = np.squeeze(images, axis=unit_dim)
+
     num_batch = images.shape[0]
     for n in range(num_batch):
-        im = Image.fromarray(np.reshape(images[n], (28,28)))
+        im = Image.fromarray(images[n])
         im = im.rotate(-1*angle)
-        im = np.expand_dims(np.array(im), axis=0)
-        images[n] = im
-    return images
+        if unit_dim:
+            im = np.expand_dims(np.array(im), axis=unit_dim-1)
+        images_out[n] = im
+    return images_out
 
 
 def noise(images, sigma):

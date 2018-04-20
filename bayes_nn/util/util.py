@@ -41,6 +41,10 @@ def get_color(pred_class, labels):
     return colors
 
 
+def reduce_entropy(X, axis=-1):
+    return -1 * np.sum(X * np.log(X+1E-12), axis=axis)
+
+
 def calc_risk(preds, labels, weights=None):
     """
     Calculates the parameters we can possibly use to examine risk of a neural net
@@ -65,11 +69,14 @@ def calc_risk(preds, labels, weights=None):
     ave_preds = np.mean(preds, 0)
     pred_class = np.argmax(ave_preds, 1)
 
-    entropy = np.mean(-1 * np.sum(preds * np.log(preds), axis=-1), axis=0)
+    # entropy = np.mean(-1 * np.sum(preds * np.log(preds+1E-12), axis=-1), axis=0)
+    entropy = reduce_entropy(ave_preds, -1)  # entropy of the posterior predictive
+    entropy_exp = np.mean(reduce_entropy(preds, -1), axis=0)  # Expected entropy of the predictive under the parameter posterior
+    mutual_info = entropy - entropy_exp  # Equation 2 of https://arxiv.org/pdf/1711.08244.pdf
     variance = np.std(preds[:, range(num_batch), pred_class], 0)
     ave_softmax = np.mean(preds[:, range(num_batch), pred_class], 0)
     correct = np.equal(pred_class, labels)
-    return entropy, variance, ave_softmax, correct
+    return entropy, mutual_info, variance, ave_softmax, correct
 
 
 def plot_preds(preds, batch):
