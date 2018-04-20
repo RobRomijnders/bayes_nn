@@ -91,15 +91,76 @@ def MC_sampling(save_path, test_batch, mc_type):
                     weights = np.loadtxt(join(save_path, 'weights.csv'), delimiter=',')
                 else:
                     weights = None
-                entropy, variance, softmax_val, correct = calc_risk(preds, lbl_test, weights)
+                entropy, mutual_info, variance, softmax_val, correct = calc_risk(preds, lbl_test, weights)
                 risks.append((entropy, variance, softmax_val, correct))
 
                 # Do all the printing and saving bookkeeping
-                print('At %s %8.3f entropy %5.3f and variance %5.3f and ave softmax %5.3f and error %5.3f' %
-                      (var_name, mutilated_value, np.mean(entropy),
-                       np.mean(variance), np.mean(softmax_val), 1.0 - np.mean(correct)))
-                f.write('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f\n' %
-                        (mutilated_value, np.mean(entropy), np.mean(variance),
+                print(f'At {var_name} {mutilated_value:8.3f} entropy {np.mean(entropy):5.3f} '
+                      f'and mutual info {np.mean(mutual_info):5.3f} and variance {np.mean(variance):5.3f} '
+                      f'and ave softmax {np.mean(softmax_val):5.3f} and error {1.0 - np.mean(correct):5.3f}')
+                f.write('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f\n' %
+                        (mutilated_value, np.mean(entropy), np.mean(mutual_info), np.mean(variance),
+                         np.mean(softmax_val), 1.0 - np.mean(correct)))
+                all_mutilated_images.append(mutilated_images)
+            np.save('log/%s.mc_%s.im.npy' % (mutilation_name, mc_type), np.stack(all_mutilated_images))
+            np.save('log/%s.mc_%s.risks.npy' % (mutilation_name, mc_type), np.array(risks))
+
+
+def MC_sampling_tf(model_direc, test_batch, mc_type):
+
+    # Load the model
+    import weight_uncertainty
+    from weight_uncertainty.util.util import RestoredModel
+    model = RestoredModel(model_direc)
+    if 'p' in mc_type:
+        model.prune(0.37)
+        print('Prune')
+
+    maybe_make_dir('log')
+
+    # Do many runs
+    im_test, lbl_test = test_batch
+    im_test = np.transpose(im_test, axes=[0, 2, 3, 1])  # Transpose from NCHW to NHWC
+
+    # Double check if it has sensible performance
+    lbl_pred = model.predict(im_test)
+    print(f'Accuracy is {np.mean(np.equal(lbl_test, np.argmax(lbl_pred, axis=1)))}')
+
+
+    # preds = []
+    # for run in range(conf.num_runs):
+    #     model.load_state_dict(torch.load(save_path.replace('*', str(run))))
+    #     preds.append(eval_and_numpy_softmax(im_tensor, model))
+    #
+    # # Make a plot of image, 10 runs and the average and calculate the variance for correct class
+    # plot_preds(preds, (im_test, lbl_test))
+
+    # Explore increasing added noise
+    for mutilation_name, var_name, low_value, high_value in conf.experiments:  # Read from the experiment method
+        mutilation_function = globals()[mutilation_name]
+
+        # Accumulator variables for the risk tuples and the mutilated images
+        risks = []
+        all_mutilated_images = []
+        with open('log/%s.mc_%s.csv' % (mutilation_name, mc_type), 'w') as f:  # For saving the performance
+            for i, mutilated_value in enumerate(np.linspace(low_value, high_value, conf.num_experiments)):
+                # Mutilate the image and put it to PyTorch on GPU
+                mutilated_images = mutilation_function(np.copy(im_test), mutilated_value)
+
+                # Now get the samples from the predictive distribution
+                preds = []  # Accumulator for the predictions
+                for run in range(2*conf.num_runs):
+                    preds.append(model.predict(mutilated_images))
+
+                entropy, mutual_info, variance, softmax_val, correct = calc_risk(preds, lbl_test)
+                risks.append((entropy, variance, softmax_val, correct))
+
+                # Do all the printing and saving bookkeeping
+                print(f'At {var_name} {mutilated_value:8.3f} entropy {np.mean(entropy):5.3f} '
+                      f'and mutual info {np.mean(mutual_info):5.3f} and variance {np.mean(variance):5.3f} '
+                      f'and ave softmax {np.mean(softmax_val):5.3f} and error {1.0 - np.mean(correct):5.3f}')
+                f.write('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f\n' %
+                        (mutilated_value, np.mean(entropy), np.mean(mutual_info), np.mean(variance),
                          np.mean(softmax_val), 1.0 - np.mean(correct)))
                 all_mutilated_images.append(mutilated_images)
             np.save('log/%s.mc_%s.im.npy' % (mutilation_name, mc_type), np.stack(all_mutilated_images))
