@@ -12,7 +12,7 @@ from bayes_nn.util.util import maybe_make_dir
 
 # for var, fname_im, fname_risks, fname_mean_risks in zip(variable, pickled_images, logged_risks, mean_risks_files):
 
-mc_type = 'mc_multi'
+mc_type = 'mc_vif'
 for mutilation, var_name, _, _ in conf.experiments:
     mean_risks = np.loadtxt('log/%s.%s.csv' % (mutilation, mc_type), delimiter=',')
     images = np.load('log/%s.%s.im.npy' % (mutilation, mc_type))
@@ -22,7 +22,7 @@ for mutilation, var_name, _, _ in conf.experiments:
     num_experiments, num_batch = images.shape[:2]
 
     num_rows = 4
-    num_cols = int(num_batch/num_rows)
+    num_cols = min((int(num_batch/num_rows), 4))
 
     for num_experiment in range(num_experiments):
         f, axarr = plt.subplots(num_rows, num_cols)
@@ -30,7 +30,7 @@ for mutilation, var_name, _, _ in conf.experiments:
         batch_count = 0
         for num_row in range(num_rows):
             for num_col in range(num_cols):
-                axarr[num_row, num_col].imshow(images[num_experiment, batch_count, 0], cmap='gray')
+                axarr[num_row, num_col].imshow(np.squeeze(images[num_experiment, batch_count]), cmap='gray')
                 color = 'g' if risks[num_experiment, 3, batch_count] else 'r'
                 axarr[num_row, num_col].set_title('Entropy %5.3f' % risks[num_experiment, 0, batch_count], color=color)
                 plt.setp(axarr[num_row, num_col].get_xticklabels(), visible=False)
