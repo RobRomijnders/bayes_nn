@@ -92,7 +92,7 @@ def MC_sampling(save_path, test_batch, mc_type):
                 else:
                     weights = None
                 entropy, mutual_info, variance, softmax_val, correct = calc_risk(preds, lbl_test, weights)
-                risks.append((entropy, variance, softmax_val, correct))
+                risks.append((entropy, mutual_info, variance, softmax_val, correct))
 
                 # Do all the printing and saving bookkeeping
                 print(f'At {var_name} {mutilated_value:8.3f} entropy {np.mean(entropy):5.3f} '
@@ -126,15 +126,6 @@ def MC_sampling_tf(model_direc, test_batch, mc_type):
     lbl_pred = model.predict(im_test)
     print(f'Accuracy is {np.mean(np.equal(lbl_test, np.argmax(lbl_pred, axis=1)))}')
 
-
-    # preds = []
-    # for run in range(conf.num_runs):
-    #     model.load_state_dict(torch.load(save_path.replace('*', str(run))))
-    #     preds.append(eval_and_numpy_softmax(im_tensor, model))
-    #
-    # # Make a plot of image, 10 runs and the average and calculate the variance for correct class
-    # plot_preds(preds, (im_test, lbl_test))
-
     # Explore increasing added noise
     for mutilation_name, var_name, low_value, high_value in conf.experiments:  # Read from the experiment method
         mutilation_function = globals()[mutilation_name]
@@ -149,11 +140,11 @@ def MC_sampling_tf(model_direc, test_batch, mc_type):
 
                 # Now get the samples from the predictive distribution
                 preds = []  # Accumulator for the predictions
-                for run in range(2*conf.num_runs):
+                for run in range(5*conf.num_runs):
                     preds.append(model.predict(mutilated_images))
 
                 entropy, mutual_info, variance, softmax_val, correct = calc_risk(preds, lbl_test)
-                risks.append((entropy, variance, softmax_val, correct))
+                risks.append((entropy, mutual_info, variance, softmax_val, correct))
 
                 # Do all the printing and saving bookkeeping
                 print(f'At {var_name} {mutilated_value:8.3f} entropy {np.mean(entropy):5.3f} '

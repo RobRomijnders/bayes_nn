@@ -19,7 +19,7 @@ colors = {'mc_dropout': 'g',
           'mc_vif': 'm',
           'mc_vifp': 'k'}  # Dictionarly to map types of MC to colors for plotting
 risk_types = ['Entropy', 'mutual info', 'STD of softmax', 'Mean of softmax', 'Error']
-risk_ylims = [(0.0, 1.8), (0.0, 0.9), (0.0, 0.4), (0.0, 1.0), (0.0, 1.0)]
+risk_ylims = [(0.0, 2.0), (0.0, 1.0), (0.0, 0.4), (0.0, 1.0), (0.0, 1.0)]
 
 f, axarr = plt.subplots(len(var2idx), len(risk_types))
 
@@ -28,8 +28,10 @@ for filename in filenames:
     with open(filename) as f_risk:
         _, name = os.path.split(filename)
         mutilation_func, mc_type, _ = name.split('.')
+        if mc_type == 'mc_vifp': continue
 
         table = np.genfromtxt(f_risk, delimiter=',')
+        table[:, 1] = table[:, 1] - table[:, 2]
 
         for n in range(1, table.shape[1]):
             # axarr[var2idx[mutilation_func], n-1].scatter(table[:, 0], table[:, n], label=mc_type, c=colors[mc_type], s=5)

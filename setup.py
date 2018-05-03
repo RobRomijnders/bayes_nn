@@ -12,8 +12,6 @@ setup(name='bayes_nn',
           'scipy',
           'sklearn',
           'matplotlib',
-          'torch',
-          'python-mnist'
       ],
       packages=find_packages(exclude=('tests')),
       zip_safe=False)

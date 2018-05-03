@@ -45,7 +45,7 @@ def reduce_entropy(X, axis=-1):
     return -1 * np.sum(X * np.log(X+1E-12), axis=axis)
 
 
-def calc_risk(preds, labels, weights=None):
+def calc_risk(preds, labels=None, weights=None):
     """
     Calculates the parameters we can possibly use to examine risk of a neural net
 
@@ -75,7 +75,10 @@ def calc_risk(preds, labels, weights=None):
     mutual_info = entropy - entropy_exp  # Equation 2 of https://arxiv.org/pdf/1711.08244.pdf
     variance = np.std(preds[:, range(num_batch), pred_class], 0)
     ave_softmax = np.mean(preds[:, range(num_batch), pred_class], 0)
-    correct = np.equal(pred_class, labels)
+    if labels is not None:
+        correct = np.equal(pred_class, labels)
+    else:
+        correct = None
     return entropy, mutual_info, variance, ave_softmax, correct
 
 
