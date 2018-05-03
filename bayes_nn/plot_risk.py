@@ -11,6 +11,7 @@ plt.ion()
 maybe_make_dir('im')
 
 filenames = glob.glob('log/*.*.csv')
+assert len(filenames) > 0, 'Did not find any logs'
 
 var2idx = {exp[0]: i for i, exp in enumerate(conf.experiments)}  # Maps experiment names to rows in the plotting
 colors = {'mc_dropout': 'g',
@@ -25,20 +26,21 @@ f, axarr = plt.subplots(len(var2idx), len(risk_types))
 
 
 for filename in filenames:
-    with open(filename) as f_risk:
-        _, name = os.path.split(filename)
-        mutilation_func, mc_type, _ = name.split('.')
-        if mc_type == 'mc_vifp': continue
+    table = np.genfromtxt(filename, delimiter=',')
+    table[:, 1] = table[:, 1] - table[:, 2]
 
-        table = np.genfromtxt(f_risk, delimiter=',')
-        table[:, 1] = table[:, 1] - table[:, 2]
+    _, name = os.path.split(filename)
+    mutilation_func, mc_type, _ = name.split('.')
+    if mc_type == 'mc_vifp': continue
 
-        for n in range(1, table.shape[1]):
-            # axarr[var2idx[mutilation_func], n-1].scatter(table[:, 0], table[:, n], label=mc_type, c=colors[mc_type], s=5)
-            axarr[var2idx[mutilation_func], n-1].plot(table[:, 0], table[:, n], label=mc_type, c=colors[mc_type])
-            # axarr[var2idx[mutilation_func], i].set_title(risk_types[i])
-            axarr[var2idx[mutilation_func], n-1].set_xlabel(dict(conf.func2var_name)[mutilation_func])
-            # axarr[var2idx[mutilation_func], i].set_ylim(risk_ylims[i])
+
+
+    for n in range(1, table.shape[1]):
+        # axarr[var2idx[mutilation_func], n-1].scatter(table[:, 0], table[:, n], label=mc_type, c=colors[mc_type], s=5)
+        axarr[var2idx[mutilation_func], n-1].plot(table[:, 0], table[:, n], label=mc_type, c=colors[mc_type])
+        # axarr[var2idx[mutilation_func], i].set_title(risk_types[i])
+        axarr[var2idx[mutilation_func], n-1].set_xlabel(dict(conf.func2var_name)[mutilation_func])
+        # axarr[var2idx[mutilation_func], i].set_ylim(risk_ylims[i])
 
 for axrow in axarr:
     for n_ax, ax in enumerate(axrow):
