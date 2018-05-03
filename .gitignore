@@ -3,7 +3,6 @@ __pycache__
 *.tar.gz
 *.pyt
 *.csv
-*.gif
 *.txt
 readme_raw.md
 .idea

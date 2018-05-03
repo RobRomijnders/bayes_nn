@@ -24,7 +24,7 @@ def main():
     print('\nDo MC lang\n')
     MC_sampling('saved_models_lang', test_batch, 'lang')
 
-    MC_sampling_tf('/home/mps/Documents/rob/projects/weight_uncertainty/weight_uncertainty/log/mnist_final/save/my-model', test_batch, 'vif')
+    MC_sampling_tf('/home/mps/Documents/rob/projects/weight_uncertainty/weight_uncertainty/log/mnist_final_augment/save/my-model', test_batch, 'vif')
 
     # MC_sampling_tf('/home/rob/Dropbox/ml_projects/weight_uncertainty/weight_uncertainty/log/18-04-14__14:57:19/save/my-model', test_batch, 'vifp')
 

@@ -31,7 +31,7 @@ for mutilation, var_name, _, _ in conf.experiments:
         batch_count = 0
         for num_row in range(num_rows):
             axarr[num_row, 0].imshow(np.squeeze(images[num_experiment, batch_count]), cmap='gray')
-            color = 'g' if risks[num_experiment, 4, batch_count] else 'r'
+            color = 'g' if risks[num_experiment, 5, batch_count].astype(np.bool) else 'r'
             axarr[num_row, 0].set_title('Entropy %5.3f' % risks[num_experiment, 1, batch_count], color=color)
 
             axarr[num_row, 1].imshow(np.ones((28, 28)) * risks[num_experiment, 1, batch_count], cmap='coolwarm', vmin=0.0, vmax=1.6)
